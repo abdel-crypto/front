@@ -3,10 +3,10 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken')
-const db = "mongodb://testuser:testpw@ds123136.mlab.com:23136/eventsdb";
+const db = "mongodb+srv://abdel-crypto:0001687156Az@cluster0-g8dls.mongodb.net/test?retryWrites=true&w=majority";
 // mongoose.Promise = global.Promise;
 
-mongoose.connect(db, function(err){
+mongoose.connect(db,{ useNewUrlParser: true ,useUnifiedTopology: true}, function(err){
     if(err){
         console.error('Error! ' + err)
     } else {
@@ -30,89 +30,6 @@ function verifyToken(req, res, next) {
   next()
 }
 
-router.get('/events', (req,res) => {
-  let events = [
-    {
-      "_id": "1",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "2",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "3",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "4",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "5",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "6",
-      "name": "Auto Expo",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    }
-  ]
-  res.json(events)
-})
-
-router.get('/special', verifyToken, (req, res) => {
-  let specialEvents = [
-    {
-      "_id": "1",
-      "name": "Auto Expo Special",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "2",
-      "name": "Auto Expo Special",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "3",
-      "name": "Auto Expo Special",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "4",
-      "name": "Auto Expo Special",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "5",
-      "name": "Auto Expo Special",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    },
-    {
-      "_id": "6",
-      "name": "Auto Expo Special",
-      "description": "lorem ipsum",
-      "date": "2012-04-23T18:25:43.511Z"
-    }
-  ]
-  res.json(specialEvents)
-})
 
 router.post('/register', (req, res) => {
   let userData = req.body
@@ -142,10 +59,31 @@ router.post('/login', (req, res) => {
       } else {
         let payload = {subject: user._id}
         let token = jwt.sign(payload, 'secretKey')
-        res.status(200).send({token})
+        res.status(200).send({token:token,id:payload})
       }
     }
   })
 })
+
+router.post('/depense', (req, res) => {
+  let userData = req.body
+  User.findOne({email: userData.mail}, (err, user) => {
+    if (err) {
+      console.log(err)    
+    } else {
+      if (!user) {
+        res.status(401).send('Invalid Email')
+      } else 
+      if ( user.password !== userData.password) {
+        res.status(401).send('Invalid Password')
+      } else {
+           User.collection('users').insertOne(userData.objectif,userData.depense);
+      }
+    }
+  })
+
+});
+
+
 
 module.exports = router;
